@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 
 pytesseract.pytesseract.tesseract_cmd = r'D:\Program Files\tesseract-ocr\tesseract.exe'
 
+
 class CharContour():
     def __init__(self, x, y, w, h, cnt):
         self.x = x
@@ -14,8 +15,8 @@ class CharContour():
         self.h = h
         self.cnt = cnt
         self.char = '?'
-    
-    #We use this to ensure that two contours with the same bounding box are considered the same
+
+    # We use this to ensure that two contours with the same bounding box are considered the same
     def __hash__(self):
         return hash((self.x, self.y, self.w, self.h))
 
@@ -24,6 +25,7 @@ class CharContour():
 
     def __repr__(self):
         return self.char
+
 
 def Clamp(x, min, max):
     if x < min:
@@ -40,18 +42,23 @@ def TryGetPlateNum(img):
     # config = r'--oem 1 --psm 10 outputbase digits -c tessedit_char_whitelist=0123456789'
 
     c = pytesseract.image_to_string(img, 'eng', config).strip()
-    if len(c) > 1:
-        return c[0]
+    if len(c) == 0:
+        return ''
 
-    return c
-    
+    return c[0]
+
+
+def isDigitAOne(char):
+    ratio = char.w / char.h
+    return ratio > 0.2 and ratio < 0.5
+
 
 def FilterBoundingBoxes(chars):
 
     chars = list(set(chars))
     cntsToRemove = []
 
-    #Remove non-external bounding boxes like the hole inside 4, inside 0 and so on
+    # Remove non-external bounding boxes like the hole inside 4, inside 0 and so on
     for i in range(len(chars)):
 
         if chars[i] in cntsToRemove:
@@ -61,13 +68,13 @@ def FilterBoundingBoxes(chars):
         cnt1Area = chars[i].w * chars[i].h
 
         for j in range(len(chars)):
-            
+
             if i == j:
                 continue
 
             x2, y2, w2, h2 = chars[j].x, chars[j].y, chars[j].w, chars[j].h
 
-            #In case of too much overlap remove the smaller contour
+            # In case of too much overlap remove the smaller contour
             percentOverlap = GetPercentOverlap(x1, y1, w1, h1, x2, y2, w2, h2)
             if percentOverlap > 0.4:
                 if cnt1Area < chars[j].w * chars[j].h:
@@ -81,21 +88,23 @@ def FilterBoundingBoxes(chars):
 
     return chars
 
+
 def ContourWithinPlates(x, y, w, h):
-    
+
     for plate in candidatePlates:
         if GetPercentOverlap(x, y, w, h, plate[0], plate[1], plate[2], plate[3]) >= 0.4:
             return True
 
     return False
 
-#Calculate the percent overlap between the two bounding boxes
+# Calculate the percent overlap between the two bounding boxes
 def GetPercentOverlap(x1, y1, w1, h1, x2, y2, w2, h2):
     overlapX = max(0, min(x1 + w1, x2 + w2) - max(x1, x2))
     overlapY = max(0, min(y1 + h1, y2 + h2) - max(y1, y2))
     overlapArea = overlapX * overlapY
 
     return overlapArea / (w1 * h1)
+
 
 def OCR(chars):
 
@@ -106,17 +115,22 @@ def OCR(chars):
         cv2.imshow('6-contours-img', temp)
 
         cntImgSegment = morphedImg[c.y:c.y + c.h, c.x:c.x + c.w].copy()
-        _, cntImgSegment = cv2.threshold(cntImgSegment, 0, 255, cv2.THRESH_OTSU | cv2.THRESH_BINARY_INV)
+        _, cntImgSegment = cv2.threshold(
+            cntImgSegment, 0, 255, cv2.THRESH_OTSU | cv2.THRESH_BINARY_INV)
 
         ocrChar = TryGetPlateNum(cntImgSegment)
-        if ocrChar != "":
+        if ocrChar == '' and isDigitAOne(c):
+            ocrChar = '1'
+
+        if ocrChar != '':
             c.char = ocrChar
             print('ocr', ocrChar)
 
         cv2.waitKey(0)
 
+
 def FilterOCR(chars):
-    
+
     digitCount = 0
     avgCharArea = 0
     for c in chars:
@@ -129,9 +143,9 @@ def FilterOCR(chars):
 
     charsToRemove = []
     avgCharArea /= float(digitCount)
-    print('avgCharArea',avgCharArea)
+    print('avgCharArea', avgCharArea)
     for c in chars:
-        if c.char.isdigit() and abs(c.w * c.h - avgCharArea) / avgCharArea > 0.45:
+        if c.char.isdigit() and abs(c.w * c.h - avgCharArea) / avgCharArea > 0.48:
             charsToRemove.append(c)
 
     for c in charsToRemove:
@@ -139,8 +153,9 @@ def FilterOCR(chars):
 
     return chars
 
+
 def GetCarInfo(charsCnts):
-    
+
     for i in range(len(charsCnts) - 1, -1, -1):
         if charsCnts[i].char == '?':
             charsCnts.pop(i)
@@ -155,29 +170,31 @@ def GetCarInfo(charsCnts):
         letter = charsCnts[-1].char
 
     for i in range(len(charsCnts) - 1, -1, -1):
-        
+
         c = charsCnts[i].char
         if c.isdigit() and len(carNum) < 5:
             carNum = c + carNum
 
     return letter, carNum, city
 
+
 def ShowImg(img):
     i = cv2.cvtColor(img.copy(), cv2.COLOR_BGR2RGB)
     plt.imshow(i)
     plt.show()
 
-imgName = 'plate8.png'
-imgColor = cv2.imread(imgName)
-height, width, channels = imgColor.shape 
 
-# Image pre-processing 
+imgName = 'plate5.png'
+imgColor = cv2.imread(imgName)
+height, width, channels = imgColor.shape
+
+# Image pre-processing
 img = cv2.imread(imgName, cv2.IMREAD_GRAYSCALE)
 cv2.imshow('1-original', img)
 
 img = cv2.add(img, np.array([50.0]))
 cv2.imshow('2-brightened', img)
-img = cv2.GaussianBlur(img, (3,3), 0)
+img = cv2.GaussianBlur(img, (3, 3), 0)
 cv2.imshow('2-brightened+blur', img)
 
 blackHatMorphKernel = cv2.getStructuringElement(cv2.MORPH_RECT, (19, 7))
@@ -185,8 +202,9 @@ img = cv2.morphologyEx(img, cv2.MORPH_BLACKHAT, blackHatMorphKernel)
 morphedImg = img.copy()
 cv2.imshow('3-morph-blackhat', img)
 
-## Detect plate area and ignore regions not within specific area within image
-plate = cv2.morphologyEx(morphedImg, cv2.MORPH_CLOSE, cv2.getStructuringElement(cv2.MORPH_RECT, (19, 7)))
+# Detect plate area and ignore regions not within specific area within image
+plate = cv2.morphologyEx(morphedImg, cv2.MORPH_CLOSE,
+                         cv2.getStructuringElement(cv2.MORPH_RECT, (19, 7)))
 cv2.imshow('4.1-morph-closed', plate)
 
 plate = cv2.threshold(plate, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
@@ -203,7 +221,8 @@ cntAreas = []
 for cnt in cnts2:
     cntAreas.append(cv2.contourArea(cnt))
 
-cntsByArea = [x for _, x in sorted(zip(cntAreas, cnts2), key=lambda pair: pair[0], reverse=True)]
+cntsByArea = [x for _, x in sorted(
+    zip(cntAreas, cnts2), key=lambda pair: pair[0], reverse=True)]
 cnts2 = cntsByArea[:10]
 
 cps = []
@@ -227,7 +246,8 @@ for i in range(len(cnts2)-1, -1, -1):
     cps.append(cnt)
     candidatePlates.append((x, y, w, h))
 
-cv2.imshow('4.5-chosen-plates', cv2.drawContours(imgColor.copy(), cps, -1, (255, 0, 0), 2))
+cv2.imshow('4.5-chosen-plates',
+           cv2.drawContours(imgColor.copy(), cps, -1, (255, 0, 0), 2))
 ##
 
 img = cv2.Canny(img, 50, 200)
@@ -241,7 +261,8 @@ cntAreas = []
 for cnt in cnts:
     cntAreas.append(cv2.contourArea(cnt))
 
-cntsByArea = [x for _, x in sorted(zip(cntAreas, cnts), key=lambda pair: pair[0])]
+cntsByArea = [x for _, x in sorted(
+    zip(cntAreas, cnts), key=lambda pair: pair[0])]
 cnts = cntsByArea[floor(len(cntsByArea) * 0.4):]
 
 # Draw all remaining cnts
@@ -255,7 +276,7 @@ for i in range(len(cnts)-1, -1, -1):
     cnt = cnts[i]
     x, y, w, h = cv2.boundingRect(cnt)
     aspectRatio = w / float(h)
-    if not(aspectRatio > 0.15 and aspectRatio < 0.9) or not(ContourWithinPlates(x,y,w,h)):
+    if not(aspectRatio > 0.15 and aspectRatio < 0.9) or not(ContourWithinPlates(x, y, w, h)):
         continue
 
     # Expand rect a bit so the detector works
