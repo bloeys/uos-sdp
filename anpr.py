@@ -125,7 +125,7 @@ def OCR(imgColor, morphedImg, chars):
             c.char = ocrChar
             print('ocr', ocrChar)
 
-        cv2.waitKey(0)
+        # cv2.waitKey(0)
 
 
 def FilterOCR(chars):
@@ -261,8 +261,8 @@ def GetPlateNumber(imgName):
     cnts = cntsByArea[floor(len(cntsByArea) * 0.4):]
 
     # Draw all remaining cnts
-    cv2.imshow('dang', cv2.drawContours(imgColor, cnts, -1, (0, 255, 0), 1))
-    cv2.waitKey()
+    cv2.imshow('all', cv2.drawContours(imgColor, cnts, -1, (0, 255, 0), 1))
+    # cv2.waitKey()
 
     # Filter by AR and create contour objects
     charContours = []
@@ -292,7 +292,7 @@ def GetPlateNumber(imgName):
     print('Extracted digits ordered by x-position:', charContours)
 
     carLetter, carNum, carCity = GetCarInfo(charContours)
-    cv2.waitKey(0)
+    # cv2.waitKey(0)
 
     return carLetter, carNum, carCity
 

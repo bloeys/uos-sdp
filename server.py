@@ -14,4 +14,4 @@ def isVehicleAuthorized():
     print('\nDetected car letter:', letter)
     print('Detected car number:', num)
     
-    return {"authorized": True}
+    return {"authorized": True, "letter": letter, "number": num}
