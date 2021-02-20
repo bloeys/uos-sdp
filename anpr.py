@@ -177,11 +177,6 @@ def GetCarInfo(charsCnts):
     return letter, carNum, city
 
 
-def ShowImg(img):
-    i = cv2.cvtColor(img.copy(), cv2.COLOR_BGR2RGB)
-    plt.imshow(i)
-    plt.show()
-
 def GetPlateNumber(imgName):
 
     imgColor = cv2.imread(imgName)
