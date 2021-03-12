@@ -6,12 +6,16 @@ import pymongo
 mongoClient = pymongo.MongoClient("mongodb://localhost:27017/")
 sdpDB = mongoClient["sdp"]
 platesCol = sdpDB["plates"]
+devicesCol = sdpDB["devices"]
 
 app = Flask(__name__)
 
 @app.route('/isVehicleAuthorized', methods=['POST'])
 def isVehicleAuthorized():
 
+    if devicesCol.find_one({"secret": request.json['secret']}) == None:
+        return {"authorized": False, "msg": "Invalid secret"}
+    
     with open('imgToTest.png', "wb") as fh:
         fh.write(base64.b64decode(request.json['image']))
 

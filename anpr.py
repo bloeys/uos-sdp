@@ -5,6 +5,7 @@ import pytesseract
 import matplotlib.pyplot as plt
 
 pytesseract.pytesseract.tesseract_cmd = r'D:\Program Files\tesseract-ocr\tesseract.exe'
+#pytesseract.pytesseract.tesseract_cmd = r'/usr/bin/tesseract'
 
 class CharContour():
     def __init__(self, x, y, w, h, cnt):
@@ -111,7 +112,7 @@ def OCR(imgColor, morphedImg, chars):
         # Highlight the contour we are trying to get characters from
         temp = imgColor
         cv2.rectangle(temp, (c.x, c.y), (c.x + c.w, c.y + c.h), (255, 0, 0), 2)
-        cv2.imshow('6-contours-img', temp)
+        # cv2.imshow('6-contours-img', temp)
 
         cntImgSegment = morphedImg[c.y:c.y + c.h, c.x:c.x + c.w].copy()
         _, cntImgSegment = cv2.threshold(
@@ -184,31 +185,31 @@ def GetPlateNumber(imgName):
 
     # Image pre-processing
     img = cv2.imread(imgName, cv2.IMREAD_GRAYSCALE)
-    cv2.imshow('1-original', img)
+    # cv2.imshow('1-original', img)
 
     img = cv2.add(img, np.array([50.0]))
-    cv2.imshow('2-brightened', img)
+    # cv2.imshow('2-brightened', img)
     img = cv2.GaussianBlur(img, (3, 3), 0)
-    cv2.imshow('2-brightened+blur', img)
+    # cv2.imshow('2-brightened+blur', img)
 
     blackHatMorphKernel = cv2.getStructuringElement(cv2.MORPH_RECT, (19, 7))
     img = cv2.morphologyEx(img, cv2.MORPH_BLACKHAT, blackHatMorphKernel)
     morphedImg = img.copy()
-    cv2.imshow('3-morph-blackhat', img)
+    # cv2.imshow('3-morph-blackhat', img)
 
     # Detect plate area and ignore regions not within specific area within image
     plate = cv2.morphologyEx(morphedImg, cv2.MORPH_CLOSE,
                             cv2.getStructuringElement(cv2.MORPH_RECT, (19, 7)))
-    cv2.imshow('4.1-morph-closed', plate)
+    # cv2.imshow('4.1-morph-closed', plate)
 
     plate = cv2.threshold(plate, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
-    cv2.imshow('4.2-threshold-OTSU', plate)
+    # cv2.imshow('4.2-threshold-OTSU', plate)
 
     plate = cv2.erode(plate, None, iterations=5)
-    cv2.imshow('4.3-erode', plate)
+    # cv2.imshow('4.3-erode', plate)
 
     plate = cv2.dilate(plate, None, iterations=15)
-    cv2.imshow('4.4-threshold-dilate', plate)
+    # cv2.imshow('4.4-threshold-dilate', plate)
 
     cnts2 = cv2.findContours(plate, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[0]
     cntAreas = []
@@ -239,10 +240,10 @@ def GetPlateNumber(imgName):
         cps.append(cnt)
         candidatePlates.append((x, y, w, h))
 
-    cv2.imshow('4.5-chosen-plates', cv2.drawContours(imgColor.copy(), cps, -1, (255, 0, 0), 2))
+    # cv2.imshow('4.5-chosen-plates', cv2.drawContours(imgColor.copy(), cps, -1, (255, 0, 0), 2))
 
     img = cv2.Canny(img, 50, 200)
-    cv2.imshow('5-canny-img', img)
+    # cv2.imshow('5-canny-img', img)
 
     # Find all contours
     cnts = cv2.findContours(img, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)[0]
@@ -256,7 +257,7 @@ def GetPlateNumber(imgName):
     cnts = cntsByArea[floor(len(cntsByArea) * 0.4):]
 
     # Draw all remaining cnts
-    cv2.imshow('all', cv2.drawContours(imgColor, cnts, -1, (0, 255, 0), 1))
+    # cv2.imshow('all', cv2.drawContours(imgColor, cnts, -1, (0, 255, 0), 1))
     # cv2.waitKey()
 
     # Filter by AR and create contour objects
