@@ -13,6 +13,12 @@ app = Flask(__name__)
 @app.route('/isVehicleAuthorized', methods=['POST'])
 def isVehicleAuthorized():
 
+    if 'image' not in request.json:
+        return {"authorized": False, "msg": "The 'image' field is required"}
+
+    if 'secret' not in request.json:
+        return {"authorized": False, "msg": "The 'secret' field is required"}
+
     if devicesCol.find_one({"secret": request.json['secret']}) == None:
         return {"authorized": False, "msg": "Invalid secret"}
     
