@@ -2,7 +2,7 @@ import time
 import base64
 import picamera
 from io import BytesIO
-
+import io
 camera = picamera.PiCamera()
 
 # Settings
@@ -11,7 +11,11 @@ camera.vflip = True
 camera.hflip = True
 # 3280×2464 for still photos, and 1920×1080
 camera.resolution = (1920, 1080)
+camera.zoom = (0.0, 0.0, 1.0, 1.0)
 time.sleep(2)
+# camera.start_preview()
+# time.sleep(5)
+# camera.stop_preview()
 
 def getImageBase64():
     
@@ -20,4 +24,8 @@ def getImageBase64():
     
     b64 = base64.b64encode(imgStream.getvalue())
     imgStream.close()
+    
+    # f = open('client/wow.txt',mode='w')
+    # f.write(str(b64))
+    # f.close()
     return b64
