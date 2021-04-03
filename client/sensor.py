@@ -10,7 +10,7 @@ GPIO.setmode(GPIO.BCM)
 GPIO.setup(GPIO_ECHO, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 GPIO.setup(GPIO_TRIGGER, GPIO.OUT)
  
-def getDistance():
+def getDistanceCM():
 
     # Trigger sensor to start measuring distance
     GPIO.output(GPIO_TRIGGER, GPIO.HIGH)
@@ -26,10 +26,3 @@ def getDistance():
 
     highTime = stopTime - startTime
     return (highTime * 340) / 2 * 100
- 
-while True:
-    dist = getDistance()
-    print ("Measured Distance = %.1f cm" % dist)
-    time.sleep(0.25)
-
-GPIO.cleanup()
