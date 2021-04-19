@@ -87,4 +87,5 @@ while True:
     #time.sleep(1)
     #continue
     tick()
+    ledOff(GPIO_GREEN_LED)
     time.sleep(1)
