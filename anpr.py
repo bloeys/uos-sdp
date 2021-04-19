@@ -156,13 +156,13 @@ def FilterOCR(chars):
 
 def GetCarInfo(charsCnts):
 
-    if len(charsCnts) == 0:
-        return '', '', ''
-
     for i in range(len(charsCnts) - 1, -1, -1):
         if charsCnts[i].char == '?':
             charsCnts.pop(i)
 
+    if len(charsCnts) == 0:
+        return '', '', ''
+            
     carNum = ''
     letter = ''
     city = ''
