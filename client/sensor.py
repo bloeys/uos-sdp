@@ -27,11 +27,16 @@ def getDistanceCM(sideSensor = False):
     GPIO.output(trigPin, GPIO.LOW)
  
     # Calculate time receiving a high signal
-    GPIO.wait_for_edge(echoPin, GPIO.RISING)
+    
+    #GPIO.wait_for_edge(echoPin, GPIO.RISING)
     startTime = time.time()
+    while GPIO.input(echoPin) == GPIO.LOW:
+        startTime = time.time()
  
-    GPIO.wait_for_edge(echoPin, GPIO.FALLING)
+    #GPIO.wait_for_edge(echoPin, GPIO.FALLING)
     stopTime = time.time()
+    while GPIO.input(echoPin) == GPIO.HIGH:
+        stopTime = time.time()
 
-    highTime = stopTime - startTime
-    return (highTime * 340) / 2 * 100
+    pulseWidth = stopTime - startTime
+    return (pulseWidth * 340) / 2 * 100

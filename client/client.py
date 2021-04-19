@@ -77,5 +77,14 @@ def tick():
         ledFlash(GPIO_GREEN_LED, 5, 0.5)
 
 while True:
+
+    #Test all components
+    #ledFlash(GPIO_GREEN_LED, 5, 1)
+    #ledFlash(GPIO_RED_LED, 5, 1)
+    #print('old:', sensor.getDistanceCM())
+    #time.sleep(1)
+    #print('new:', sensor.getDistanceCM(True))
+    #time.sleep(1)
+    #continue
     tick()
     time.sleep(1)
