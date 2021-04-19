@@ -31,7 +31,6 @@ def ledFlash(ledPin, flashCount, totalTime):
     startState = GPIO.input(ledPin)
     sleepDuration = totalTime/flashCount*0.5
     while flashCount > 0:
-        print("tick")
         ledToggle(ledPin)
         time.sleep(sleepDuration)
         ledToggle(ledPin)
@@ -46,7 +45,7 @@ def tick():
     ledOff(GPIO_RED_LED)
 
     dist = sensor.getDistanceCM()
-    if dist > 2000:
+    if dist > 200:
         return
 
     print('close object ('+str(dist)+').' + 'Taking image and sending...')
@@ -70,11 +69,11 @@ def tick():
         return
 
     #Wait for car to start passing gate
-    while sensor.getDistanceCM(sideSensor=True) > 2000:
+    while sensor.getDistanceCM(sideSensor=True) > 200:
         ledFlash(GPIO_GREEN_LED, 2, 0.5)
 
     #Wait for car to completely pass gate
-    while sensor.getDistanceCM(sideSensor=True) < 2000:
+    while sensor.getDistanceCM(sideSensor=True) < 200:
         ledFlash(GPIO_GREEN_LED, 5, 0.5)
 
 while True:
