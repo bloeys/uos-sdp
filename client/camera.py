@@ -24,8 +24,5 @@ def getImageBase64():
     
     b64 = base64.b64encode(imgStream.getvalue())
     imgStream.close()
-    
-    # f = open('client/wow.txt',mode='w')
-    # f.write(str(b64))
-    # f.close()
+    #camera.capture('/home/pi/Desktop/dev/uos-sdp/client/capture.png', format='png')
     return b64

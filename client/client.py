@@ -50,14 +50,21 @@ def tick():
 
     print('close object ('+str(dist)+').' + 'Taking image and sending...')
     b64 = camera.getImageBase64()
-    resp = requests.post("http://139.59.157.62:5000/isVehicleAuthorized", json={'secret':'5sa6riB1v2vgHL$2b!p5uPDUuUR9yxHZQ7pVUz0G', 'image': b64}, timeout=20)
+    try:
+        resp = requests.post("http://139.59.157.62:5000/isVehicleAuthorized", json={'secret':'5sa6riB1v2vgHL$2b!p5uPDUuUR9yxHZQ7pVUz0G', 'image': b64}, timeout=10)
+    except:
+        ledOn(GPIO_RED_LED)
+        ledOff(GPIO_GREEN_LED)
+        time.sleep(3)
+        return
+            
     if resp.status_code != 200:
         try:
             print('unexpected response when calling the server. Resp: ', resp.text())
         finally:
             ledOn(GPIO_RED_LED)
             ledOff(GPIO_GREEN_LED)
-            time.sleep(2)
+            time.sleep(1)
             return
 
     respJSON = resp.json()
