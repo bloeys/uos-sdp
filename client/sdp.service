@@ -1,0 +1,9 @@
+[Unit]
+Description=UoS SDP
+After=multi-user.target
+
+[Service]
+ExecStart=/usr/bin/python3 /home/pi/Desktop/dev/uos-sdp/client/client.py
+
+[Install]
+WantedBy=multi-user.target
