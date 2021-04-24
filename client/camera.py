@@ -10,7 +10,7 @@ camera.led = True
 camera.vflip = True
 camera.hflip = True
 # 3280×2464 for still photos, and 1920×1080
-camera.resolution = (1920, 1080)
+camera.resolution = (1280, 720)
 camera.zoom = (0.0, 0.0, 1.0, 1.0)
 time.sleep(2)
 # camera.start_preview()
